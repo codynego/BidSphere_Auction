@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from django.urls import path
-from ..auth.views import( RegistrationAPIView, VerifyEmailAPIView,
+from .views import( RegistrationAPIView, VerifyEmailAPIView,
                     ResendVerifyEmailAPIView
                     )
 

@@ -1,18 +1,18 @@
 from django.shortcuts import render
 from rest_framework.views import APIView, status
-from .serializers import RegistrationSerializer, UserSerializer, ReviewSerializer, FollowSerializer, InterestSerializer, VerifyEmailSerializer
+from .serializers import RegistrationSerializer, UserSerializer, ReviewSerializer, FollowSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
-from .models import User, Review, Interest
+from .models import User, Review
 from rest_framework import authentication
 from rest_framework import permissions
 from .tasks import send_activation_email
-from ..sss.utils import checkOTPExpiration
-from .models import OTP
+from .utils import checkOTPExpiration
+from .models import OneTimeCode
 #import get_or_404
 from django.shortcuts import get_object_or_404
-from ..sss.utils import token_generator
+from .utils import token_generator
 
 
 

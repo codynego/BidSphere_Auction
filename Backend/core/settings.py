@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'authentication',
-    #'userapp',
+    'userapp',
     'rest_framework',
     'rest_framework_simplejwt',
 ]
@@ -156,8 +156,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',)
 }
 
-#AUTH_USER_MODEL = 'userapp.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           User'
-
+AUTH_USER_MODEL = 'userapp.User'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

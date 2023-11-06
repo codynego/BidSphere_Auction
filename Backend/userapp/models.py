@@ -36,14 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
-    
-    def get_review_count(self):
-        review = Review.objects.filter(reviewed_user=self)
-        review_count = review.count()
-        avg_review = review.aggregate(Avg('rating'))['rating__avg']
-        self.rating = avg_review
-        self.save() 
-        return review_count, avg_review
+
     
 
 class OneTimeCode(models.Model):
@@ -53,6 +46,7 @@ class OneTimeCode(models.Model):
 
     def __str__(self):
         return self.otp
+
 
 
 class Review(models.Model):
@@ -71,3 +65,10 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.user.username} for {self.reviewed_user.username}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Update the average rating for the reviewed user
+        avg_rating = Review.objects.filter(reviewed_user=self.reviewed_user).aggregate(Avg('rating'))['rating__avg']
+        self.reviewed_user.rating = avg_rating
+        self.reviewed_user.save()

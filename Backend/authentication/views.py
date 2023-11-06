@@ -1,18 +1,19 @@
 from django.shortcuts import render
 from rest_framework.views import APIView, status
-from .serializers import RegistrationSerializer, UserSerializer, ReviewSerializer, FollowSerializer, InterestSerializer, VerifyEmailSerializer
+from .serializers import RegistrationSerializer
+from userapp.serializers import UserSerializer, ReviewSerializer, FollowSerializer, VerifyEmailSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
-from .models import User, Review, Interest
+from userapp.models import User, Review
 from rest_framework import authentication
 from rest_framework import permissions
-from .tasks import send_activation_email
-from .utils import checkOTPExpiration
-from .models import OTP
+from userapp.tasks import send_activation_email
+from userapp.utils import checkOTPExpiration
+from userapp.models import OneTimeCode
 #import get_or_404
 from django.shortcuts import get_object_or_404
-from .utils import token_generator
+from userapp.utils import token_generator
 
 # Create your views here.
 
@@ -105,8 +106,8 @@ class VerifyEmailAPIView(generics.CreateAPIView):
                 "statusCode": status.HTTP_400_BAD_REQUEST,
                 }
                 return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
-            if OTP.objects.filter(otp=otp).exists():
-                get_otp = OTP.objects.get(otp=otp)
+            if OneTimeCode.objects.filter(otp=otp).exists():
+                get_otp = OneTimeCode.objects.get(otp=otp)
             else:
                 response_data = {
                 "message": "Invalid OTP! Please try again.",

@@ -1,15 +1,15 @@
 from celery import shared_task
 from django.core.mail import send_mail
 import time
-from ..userapp.models import User
+from .models import User
 from .utils import token_generator
-from ..userapp.models import OTP
+from .models import OneTimeCode
 
 @shared_task(serializer='json', name="send_mail")
 def send_activation_email(user):
     """Send account activation link to the user"""
     activation_code = token_generator()
-    otp = OTP.objects.create(otp=activation_code, user=user)
+    otp = OneTimeCode.objects.create(otp=activation_code, user=user)
     otp.save()
     message = f"Hello {user.username},\n\nPlease use the following code to activate your account: {activation_code}"
 
