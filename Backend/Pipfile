@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 djangorestframework = "*"
+djangorestframework-simplejwt = "*"
+celery = {extras = ["redis"], version = "*"}
 
 [dev-packages]
 
