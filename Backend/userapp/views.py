@@ -8,11 +8,11 @@ from .models import User, Review, Interest
 from rest_framework import authentication
 from rest_framework import permissions
 from .tasks import send_activation_email
-from .utils import checkOTPExpiration
+from ..sss.utils import checkOTPExpiration
 from .models import OTP
 #import get_or_404
 from django.shortcuts import get_object_or_404
-from .utils import token_generator
+from ..sss.utils import token_generator
 
 
 

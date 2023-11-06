@@ -1,9 +1,9 @@
 from celery import shared_task
 from django.core.mail import send_mail
 import time
-from .models import User
+from ..userapp.models import User
 from .utils import token_generator
-from .models import OTP
+from ..userapp.models import OTP
 
 @shared_task(serializer='json', name="send_mail")
 def send_activation_email(user):

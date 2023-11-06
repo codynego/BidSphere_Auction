@@ -1,5 +1,5 @@
 from rest_framework  import serializers
-from .models import User, Review, Interest, OTP
+from ..userapp.models import User, Review, Interest, OTP
 
 from rest_framework import serializers
 

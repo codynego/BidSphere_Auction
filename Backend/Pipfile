@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-djangorestframework = "*"
 djangorestframework-simplejwt = "*"
 celery = {extras = ["redis"], version = "*"}
 
