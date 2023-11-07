@@ -1,5 +1,5 @@
 from rest_framework  import serializers
-from userapp.models import User, Review, OneTimeCode
+from userapp.models import User, OneTimeCode
 
 from rest_framework import serializers
 
@@ -36,7 +36,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('confirm_password', None)
-        return User.objects.create_user(**validated_data)
+        data = User.objects.create_user(**validated_data)
+        return data
     
 class VerifyEmailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()

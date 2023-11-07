@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView, status
-from .serializers import RegistrationSerializer
-from userapp.serializers import UserSerializer, ReviewSerializer, FollowSerializer, VerifyEmailSerializer
+from .serializers import VerifyEmailSerializer, ResendVerifyEmailSerializer, RegistrationSerializer, VerifyEmailSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
@@ -15,57 +14,53 @@ from userapp.models import OneTimeCode
 from django.shortcuts import get_object_or_404
 from userapp.utils import token_generator
 
-# Create your views here.
+
+from django.db import OperationalError
 
 class RegistrationAPIView(generics.CreateAPIView):
-    """
-    This endpoint allows unauthenticated users to register new user.
 
-    HTTP Methods:
-        - POST: Create a new user.
-    
-    Request (POST):
-        - JSON body: {
-            "username": "username", 
-            "email": "email", "password": "password"
-        }
-
-    Response (POST):
-        - JSON body: {
-            "message": "User registered successfully!",
-            "statusCode": 201,
-            "data": {
-                "id": 1,
-                "username": "username",
-                "email": "email",
-                "first_name": "",
-                "last_name": "",
-
-            }
-    
-    Authentication:
-        - Authentication is not required.
-    
-    """
     serializer_class = RegistrationSerializer
 
-    
-    def post(self, request):
-        """ Register new user."""
-        serializer = RegistrationSerializer(data=request.data)
+    def post(self, request, *args, **kwargs):
+        try:
+            serializer = self.serializer_class(data=request.data)
 
-        if serializer.is_valid():
-            serializer.save()
+            if serializer.is_valid():
+                serializer.save()
+                user_data = serializer.data
+                user = User.objects.get(email=user_data['email'])
+
+                send_email_task = send_activation_email.delay(username=user.username, email=user.email)
+
+                if send_email_task.get() is False:
+                    response_data = {
+                        "message": "Error sending email!",
+                        "statusCode": status.HTTP_400_BAD_REQUEST,
+                    }
+                    return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+
+                response_data = {
+                    "message": "User registered successfully!",
+                    "statusCode": status.HTTP_201_CREATED,
+                    "data": user_data
+                }
+                return Response(response_data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except OperationalError as e:
             response_data = {
-                "message": "User registered successfully!",
-                "statusCode": status.HTTP_201_CREATED,
-                "data": serializer.data
+                "message": "Database connection error: " + str(e),
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
             }
-            send_activation_email.delay(serializer.instance)
-            return Response(response_data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        except Exception as e:
+            response_data = {
+                "message": "An unexpected error occurred: " + str(e),
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            }
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class VerifyEmailAPIView(generics.CreateAPIView):
     """
